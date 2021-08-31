@@ -78,6 +78,13 @@ scripts/vcftools_thin_variants.sh
 scripts/lcmlkin_call_kinship.sh
 ```
 
+### Import and clean sample and library metadata
+
+```
+# Read, format, and clean animal and library metadata
+scripts/clean_metadata.R
+```
+
 ### Quantify transcripts with kallisto
 
 * **Required software**: kallisto (v0.43.1)
@@ -100,13 +107,6 @@ sbatch scripts/sequencing_stats_parallel.sh
 
 # Summarize sequencing stats
 scripts/sequencing_stats_summarize.sh
-```
-
-### Import and clean sample and library metadata
-
-```
-# Read, format, and clean animal and library metadata
-scripts/clean_metadata.R
 ```
 
 ### Import expression data
