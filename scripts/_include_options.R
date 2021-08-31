@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Predictor of interest (set to column name in metadata file)
 predictor = 'sexm'
 sex.variable = 'sex'
