@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 library(tximport)
 library(rhdf5)
 library(biomaRt)
