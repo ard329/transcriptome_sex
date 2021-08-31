@@ -111,12 +111,12 @@ sbatch --array=1-$(wc -l checkpoints/male_ids.txt | cut -d ' ' -f 1) scripts/kal
 sbatch --array=1-$(wc -l checkpoints/female_ids.txt | cut -d ' ' -f 1) scripts/kallisto_count_females.sh
 ```
 
-### Import expression data
+### Import and combine expression data
 
 * **Key libraries:** tximport, rdf5, biomaRt
 
 ```
-# Import kallisto results into R
+# Import kallisto results into R and combine
 scripts/kallisto_import.R
 ```
 
