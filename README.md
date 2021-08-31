@@ -129,15 +129,12 @@ scripts/kallisto_import.R
 scripts/filter_expression.R
 ```
 
-### Visualize data (pre-modeling)
+### Visualize expression data (pre-modeling)
 
 * **Key libraries:** variancePartition, umap, dendextend, ape, phangorn
 
 ```
-# Visualize metadata
-scripts/visualize_metadata.R
-
-# Visualize data
+# Visualize expression data
 scripts/visualize_expression.R
 ```
 
