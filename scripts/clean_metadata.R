@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Read in metadata
 meta.technical = read.delim('cayo_brain_bulk_metadata_technical_final.txt',stringsAsFactors=FALSE)
 meta.animal = read.delim('cayo_brain_bulk_metadata_animals_final.tsv',stringsAsFactors=FALSE)
