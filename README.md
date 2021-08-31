@@ -156,5 +156,41 @@ scripts/emma_model.R
 scripts/mashr_model.R
 ```
 
-### Enrichment of sex effects
+### Cell type enrichment
+
+* **Key libraries:** EMMREML
+
+```
+# Fit linear mixed effect model
+scripts/cell_type_enrichment.R
+```
+
+### Adjust expression data for cell type proportions 
+
+* **Key libraries:** BRETIGEA
+
+```
+# Fit linear mixed effect model
+scripts/adjust_expression.R
+```
+
+### Fit linear mixed model(s) to cell type corrected data
+
+* **Key libraries:** EMMREML
+
+```
+# Fit linear mixed effect model
+scripts/emma_model_cell_type.R
+```
+
+### Apply adaptive shrinkage to cell type corrected data
+
+* **Key libraries:** mashr
+
+```
+# Refine effects and significance values with adaptive shrinkage
+scripts/mashr_model_cell_type.R
+```
+
+### Disease, motif, and functional enrichment analyses
 
