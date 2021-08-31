@@ -78,6 +78,18 @@ scripts/vcftools_thin_variants.sh
 scripts/lcmlkin_call_kinship.sh
 ```
 
+### Calculate sequencing stats
+
+* **Required software**: SAMtools (v1.9), ea-utils (v1.04.807), GNU parallel (v20171122)
+
+```
+# Calculate sequencing stats across libraries
+sbatch scripts/sequencing_stats_parallel.sh
+
+# Summarize sequencing stats
+scripts/sequencing_stats_summarize.sh
+```
+
 ### Import and clean sample and library metadata
 
 ```
@@ -94,19 +106,8 @@ scripts/clean_metadata.R
 scripts/kallisto_transcriptomes.sh
 
 # Count transcripts
-sbatch --array=1-$(tail -n+2 data/cayo_brain_bulk_metadata_technical.tsv | wc -l | xargs) scripts/kallisto_count.sh
-```
-
-### Calculate sequencing stats
-
-* **Required software**: SAMtools (v1.9), ea-utils (v1.04.807), GNU parallel (v20171122)
-
-```
-# Calculate sequencing stats across libraries
-sbatch scripts/sequencing_stats_parallel.sh
-
-# Summarize sequencing stats
-scripts/sequencing_stats_summarize.sh
+sbatch --array=1-$(wc -l checkpoints/male_ids.txt | cut -d ' ' -f 1) scripts/kallisto_count_males.sh
+sbatch --array=1-$(wc -l checkpoints/female_ids.txt | cut -d ' ' -f 1) scripts/kallisto_count_females.sh
 ```
 
 ### Import expression data
