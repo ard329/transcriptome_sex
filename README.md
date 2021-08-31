@@ -83,11 +83,8 @@ scripts/lcmlkin_call_kinship.sh
 * **Required software**: kallisto (v0.43.1)
 
 ```
-# Create sex specific transcriptomes
+# Create sex specific transcriptomes and index
 scripts/kallisto_transcriptomes.sh
-
-# Index transcriptomes
-scripts/kallisto_index.sh
 
 # Count transcripts
 sbatch --array=1-$(tail -n+2 data/cayo_brain_bulk_metadata_technical.tsv | wc -l | xargs) scripts/kallisto_count.sh
