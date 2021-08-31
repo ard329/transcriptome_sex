@@ -94,6 +94,7 @@ scripts/sequencing_stats_summarize.sh
 
 ```
 # Read, format, and clean animal and library metadata
+# Create male and female sample lists
 scripts/clean_metadata.R
 ```
 
