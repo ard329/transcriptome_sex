@@ -11,7 +11,9 @@ library(limma)
 meta = meta[order(match(meta$LID, colnames(e.keep))),]
 nobatch = removeBatchEffect(e.keep, batch = meta$Library.batch, covariates = cbind(meta$RIN))
 
-## UMAP plot
+#######
+## UMAP 
+#######
 
 library(umap)
 library(ggplot2)
@@ -45,7 +47,7 @@ p = ggplot(a.umap,aes(x=V1,y=V2,color=Sex)) +
 plot(p)
 
 ###########
-## tsne
+## t-SNE
 ###########
 
 library(Rtsne)
@@ -72,7 +74,7 @@ p = ggplot(plot.tsne,aes(x=V1,y=V2,color=Sex)) +
 plot(p)
 
 ###########
-## pca
+## PCA
 ###########
 
 pca = prcomp(cor(nobatch))
@@ -96,7 +98,7 @@ p = ggplot(plot.pca,aes(x=PC1,y=PC2,color=Sex)) +
 plot(p)
 
 #########################
-## variance partitioning
+## Variance partitioning
 #########################
 
 library(variancePartition)
@@ -167,3 +169,22 @@ ggplot(data=data.plot, aes(x=variable, y=value)) +
   scale_shape_manual(values = c(16, 4, 8)) +
   scale_size_manual(values = c(2, 3.5, 3.5)) +
   scale_x_discrete(labels=c("Region" = "Region", "Individual" = "Individual", "exact_age_years" = "Age", "ordinal.rank" = "Rank", "sex" = "Sex", "Residuals" = "Residuals"))
+
+############
+## Hierarchical clustering
+############
+
+library(pvclust)
+
+# cluster regions
+
+regions = names(keep.genes)
+
+lr = meta[,c('LID','Region')]
+lr.split = split(lr,lr$Region)
+
+e.mean = do.call(cbind,lapply(regions,function(r) {
+  matrix(apply(nobatch[,lr.split[[r]]$LID],1,mean),ncol=1,dimnames=list(rownames(nobatch),r))}))
+
+all.clust.boot = pvclust(e.mean, method.dist='correlation',method.hclust='average',nboot=1000)
+plot(all.clust.boot)
