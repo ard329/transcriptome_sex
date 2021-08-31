@@ -6,8 +6,8 @@
 
 # download metadata and kallisto summarized to the gene level
 
-txi.gene = readRDS('kallisto_genes.RDS')
-meta = readRDS('cayo_bulkbrain_combined_metadata.RDS')
+txi.gene = readRDS('checkpoints/kallisto_genes.RDS')
+meta = readRDS('checkpoints/cayo_bulkbrain_combined_metadata.RDS')
 
 txi.gene$counts = txi.gene$counts[,which(colnames(txi.gene$counts) %in% meta$LID)]
 txi.gene$abundance = txi.gene$abundance[,which(colnames(txi.gene$abundance) %in% meta$LID)]
@@ -36,7 +36,7 @@ names(keep.new) = regions
 
 keep = Reduce(union,keep.genes)
 
-saveRDS(keep.new, 'keep_genes.rds')
+saveRDS(keep.new, 'checkpoints/keep_genes.rds')
 
 # normalize
 
@@ -53,7 +53,7 @@ v=voom(d0)
 
 e = v$E[keep,rownames(meta)]
 
-saveRDS(e, 'filtered_expression_matrix.rds')
+saveRDS(e, 'checkpoints/filtered_expression_matrix.rds')
 
 ###################
 ## transcript level
@@ -61,8 +61,8 @@ saveRDS(e, 'filtered_expression_matrix.rds')
 
 # download metadata and kallisto transcript level data
 
-txi.transcripts = readRDS('kallisto_transcripts.RDS')
-meta = readRDS('cayo_bulkbrain_combined_metadata.RDS')
+txi.transcripts = readRDS('checkpoints/kallisto_transcripts.RDS')
+meta = readRDS('checkpoints/cayo_bulkbrain_combined_metadata.RDS')
 
 txi.transcripts$counts = txi.transcripts$counts[,which(colnames(txi.transcripts$counts) %in% meta$LID)]
 txi.transcripts$abundance = txi.transcripts$abundance[,which(colnames(txi.transcripts$abundance) %in% meta$LID)]
@@ -120,7 +120,7 @@ names(keep.new) = regions
 
 keep.t = Reduce(union,keep.trans)
 
-saveRDS(keep.new, 'keep_transcripts_complete.rds') # N=27511
+saveRDS(keep.new, 'checkpoints/keep_transcripts_complete.rds') # N=27511
 
 # normalize 
 
@@ -137,9 +137,5 @@ v=voom(d0)
 
 e = v$E[keep.t,rownames(meta)]
 
-saveRDS(e, 'filtered_transcript_expression_matrix_complete.rds')
-
-
-
-
+saveRDS(e, 'checkpoints/filtered_transcript_expression_matrix_complete.rds')
 
