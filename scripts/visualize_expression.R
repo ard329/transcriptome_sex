@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 ## load normalized expression data
 
 e.keep = readRDS('checkpoints/filtered_expression_matrix.rds')
