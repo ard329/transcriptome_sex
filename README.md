@@ -180,7 +180,7 @@ scripts/adjust_expression.R
 
 ```
 # Fit linear mixed effect model
-scripts/emma_model_cell_type.R
+scripts/emma_model.R
 ```
 
 ### Apply adaptive shrinkage to cell type corrected data
@@ -189,7 +189,7 @@ scripts/emma_model_cell_type.R
 
 ```
 # Refine effects and significance values with adaptive shrinkage
-scripts/mashr_model_cell_type.R
+scripts/mashr_model.R
 ```
 
 ### Disease, motif, and functional enrichment analyses
