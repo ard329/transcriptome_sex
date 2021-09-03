@@ -192,5 +192,24 @@ scripts/emma_model.R
 scripts/mashr_model.R
 ```
 
+### Visualize and describe model results
+
+```
+# Visualize and describe sex-biased gene distributions
+# Includes chromosome enrichment analysis
+scripts/visualize_model_results.R
+```
+
 ### Disease, motif, and functional enrichment analyses
+
+### Link sex differences in expression to tissue specificity, loss of function, and genetic variance for expression
+
+### Sex prediction
+
+* **Key libraries:** caret
+
+```
+# Fit gradient boosted models per region
+scripts/sex_prediction.R
+```
 
