@@ -158,8 +158,6 @@ scripts/mashr_model.R
 
 ### Cell type enrichment
 
-* **Key libraries:** EMMREML
-
 ```
 # Fit linear mixed effect model
 scripts/cell_type_enrichment.R
@@ -202,7 +200,17 @@ scripts/visualize_model_results.R
 
 ### Disease, motif, and functional enrichment analyses
 
-### Link sex differences in expression to tissue specificity, loss of function, and genetic variance for expression
+```
+# Perform disease, motif, and functional enrichment analyses for sex-biased genes
+scripts/mashr_model.R
+```
+
+### Identify potential drivers of sex-biased gene expression
+
+```
+# Correlate sex differences in expression with tissue specificity, loss of function, and genetic variance for expression
+scripts/evolutionary_mechanisms.R
+```
 
 ### Sex prediction
 
