@@ -202,7 +202,8 @@ scripts/visualize_model_results.R
 
 ```
 # Perform disease, motif, and functional enrichment analyses for sex-biased genes
-scripts/mashr_model.R
+scripts/disease_functional_enrichment.R
+scripts/motif_enrichment.sh
 ```
 
 ### Identify potential drivers of sex-biased gene expression
