@@ -206,6 +206,13 @@ scripts/disease_functional_enrichment.R
 scripts/motif_enrichment.sh
 ```
 
+### Human v rhesus macaque comparison
+
+```
+# Compare sex effects to those GTEX
+scripts/gtex_comparison.R
+```
+
 ### Identify potential drivers of sex-biased gene expression
 
 ```
