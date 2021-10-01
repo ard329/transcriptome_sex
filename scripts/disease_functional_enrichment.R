@@ -93,7 +93,7 @@ all.region[names(which(unlist(lapply(mashr.genes,function(x) {
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
   (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
 }))))] = -1
-table(all.region) # 128 female 176 male
+table(all.region) 
 
 # Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least 1 region
 
@@ -103,7 +103,7 @@ all.region[names(which(unlist(lapply(mashr.genes,function(x) {
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
   (sum(lsfrnow[x,] < fsr.cutoff) >= 1/15 * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= 1/15 * length(keep.genes)
 }))))] = -1
-table(all.region) # 240 female 312 male 
+table(all.region)  
 
 # run VISEAGO
 
@@ -388,8 +388,10 @@ all.region[names(which(unlist(lapply(mashr.genes,function(x) {
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
   (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
 }))))] = -1
-table(all.region) # 128 female 176 male
+table(all.region) 
 
 sb = names(all.region[which(all.region != 0)])
-write.table(mb, file = 'sb_genes_13regions.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
+write.table(sb, file = 'sb_genes_13regions.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
+write.table(sb, file = 'sb_genes_13regions_ct.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
+
 
