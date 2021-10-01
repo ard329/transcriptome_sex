@@ -33,16 +33,21 @@ emma.qval.ct = emma.qval.ct[,region.levels]
 
 get_pm=function(x){x$result$PosteriorMean}
 get_lfsr=function(x){x$result$lfsr}
+get_psd=function(x){x$result$PosteriorSD}
 
 mash.beta = get_pm(mash.results)
 mash.lfsr = get_lfsr(mash.results)
+mash.sbet = mash.beta / get_psd(mash.results)
 mash.beta = mash.beta[,region.levels]
 mash.lfsr = mash.lfsr[,region.levels]
+mash.sbet = mash.sbet[,region.levels]
 
 mash.beta.ct = get_pm(mash.ct.results)
 mash.lfsr.ct = get_lfsr(mash.ct.results)
+mash.sbet.ct = mash.beta.ct / get_psd(mash.ct.results)
 mash.beta.ct = mash.beta.ct[,region.levels]
 mash.lfsr.ct = mash.lfsr.ct[,region.levels]
+mash.beta.ct = mash.beta.ct[,region.levels]
 
 ensembl.gene.names = unique(unlist(keep.genes))
 
@@ -341,3 +346,50 @@ myV = plotVenn(list(ID=c(all.region.do.split[['DOID:1059']]$ensembl_gene_id)[c(a
                     ADHD=c(all.region.do.split[['DOID:1094']]$ensembl_gene_id)[c(all.region.do.split[['DOID:1094']]$ensembl_gene_id) %in% mb]),
                labelRegions = FALSE, fontScale = 3, nCycles = 10000, borderWidth=4,
                setColors = c('#1b9e77', '#d95f02', '#7570b3', '#e7298a'))
+
+#########################################
+## export gene lists for motif enrichment
+#########################################
+
+## select data set
+
+betanow = mash.beta
+lsfrnow = mash.lfsr
+
+betanow = mash.beta.ct
+lsfrnow = mash.lfsr.ct
+
+## make gene subsets
+
+mashr.genes = rownames(betanow)
+names(mashr.genes) = rownames(betanow)
+
+library(biomaRt)
+mmul = useMart(biomart = 'ENSEMBL_MART_ENSEMBL',dataset='mmulatta_gene_ensembl') 
+gene2chrom = getBM(attributes=c('ensembl_gene_id','external_gene_name','chromosome_name'), filters = 'ensembl_gene_id', values = rownames(e.keep), mart = mmul)
+Ychrom = subset(gene2chrom, chromosome_name == "Y")
+
+`%!in%` = Negate(`%in%`)
+mash.beta = betanow = betanow[which(rownames(betanow) %!in% Ychrom$ensembl_gene_id),]
+mash.lfsr = lsfrnow = lsfrnow[which(rownames(lsfrnow) %!in% Ychrom$ensembl_gene_id),]
+ensembl.gene.names = unique(unlist(keep.genes))
+ensembl.gene.names = ensembl.gene.names[which(ensembl.gene.names %!in% Ychrom$ensembl_gene_id)]
+mashr.genes = mashr.genes[which(mashr.genes %!in% Ychrom$ensembl_gene_id)]
+
+all.region = numeric(length=length(ensembl.gene.names))
+names(all.region) = ensembl.gene.names
+write.table(ensembl.gene.names, file = 'all_exp_genes_no_Y.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
+
+# Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least a fraction [fraction.shared.cutoff] of regions
+
+all.region[names(which(unlist(lapply(mashr.genes,function(x) {
+  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] > 0) >= fraction.shared.cutoff * length(keep.genes)
+}))))] = 1
+all.region[names(which(unlist(lapply(mashr.genes,function(x) {
+  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
+}))))] = -1
+table(all.region) # 128 female 176 male
+
+sb = names(all.region[which(all.region != 0)])
+write.table(mb, file = 'sb_genes_13regions.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
+
