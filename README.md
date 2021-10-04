@@ -145,6 +145,8 @@ scripts/visualize_expression.R
 ```
 # Fit linear mixed effect model
 scripts/emma_model.R
+# Get residual expression values (for later analyses)
+scripts/residual_expression
 ```
 
 ### Apply adaptive shrinkage
