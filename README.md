@@ -215,13 +215,6 @@ scripts/disease_functional_enrichment.R
 scripts/motif_enrichment.sh
 ```
 
-### Identify potential drivers of sex-biased gene expression
-
-```
-# Correlate sex differences in expression with tissue specificity, loss of function, and genetic variance for expression
-scripts/evolutionary_mechanisms.R
-```
-
 ### Sex prediction
 
 * **Key libraries:** caret
@@ -230,4 +223,13 @@ scripts/evolutionary_mechanisms.R
 # Fit gradient boosted models per region
 scripts/sex_prediction.R
 ```
+
+### Identify potential drivers of sex-biased gene expression
+
+```
+# Correlate sex differences in expression with tissue specificity, loss of function, and genetic variance for expression
+scripts/evolutionary_mechanisms.R
+```
+
+
 
