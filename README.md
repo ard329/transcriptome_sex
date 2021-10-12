@@ -158,6 +158,13 @@ scripts/residual_expression
 scripts/mashr_model.R
 ```
 
+### Human v rhesus macaque comparison
+
+```
+# Compare sex effects to those GTEX
+scripts/gtex_comparison.R
+```
+
 ### Cell type enrichment
 
 ```
@@ -206,13 +213,6 @@ scripts/visualize_model_results.R
 # Perform disease, motif, and functional enrichment analyses for sex-biased genes
 scripts/disease_functional_enrichment.R
 scripts/motif_enrichment.sh
-```
-
-### Human v rhesus macaque comparison
-
-```
-# Compare sex effects to those GTEX
-scripts/gtex_comparison.R
 ```
 
 ### Identify potential drivers of sex-biased gene expression
