@@ -4,17 +4,10 @@
 ## choose data to upload
 ########################
 
-# gene level data
+# gene level data (primary analyses)
 
 e.keep = readRDS('filtered_expression_matrix.rds')
 keep.genes = readRDS('keep_genes.rds')
-meta = readRDS('cayo_bulkbrain_combined_metadata.rds')
-meta = meta[order(match(meta$LID, colnames(e.keep))),]
-
-# transcript level data
-
-e.keep = readRDS('filtered_transcript_expression_matrix_complete.rds')
-keep.genes = readRDS('keep_transcripts_complete.rds')
 meta = readRDS('cayo_bulkbrain_combined_metadata.rds')
 meta = meta[order(match(meta$LID, colnames(e.keep))),]
 
@@ -121,4 +114,3 @@ for (i in 1:length(out)) {
 
 # saveRDS(regions.array,file='emma_results.rds')
 # saveRDS(regions.array,file='emma_results_cell_type.rds')
-# saveRDS(regions.array,file='emma_results_transcript.rds')
