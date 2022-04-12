@@ -10,7 +10,7 @@ mmul = useEnsembl(biomart = 'ENSEMBL_MART_ENSEMBL',
 mmul.hsap = getBM(attributes=c('ensembl_gene_id','chromosome_name','external_gene_name','hsapiens_homolog_ensembl_gene','hsapiens_homolog_associated_gene_name','hsapiens_homolog_orthology_type','hsapiens_homolog_chromosome'),mart = mmul)
 mmul.hsap.o2o = subset(mmul.hsap,hsapiens_homolog_orthology_type == 'ortholog_one2one')
 
-mash.mmul = readRDS('mashr_resultsl.rds')
+mash.mmul = readRDS('mashr_results.rds')
 
 get_pm=function(x){x$result$PosteriorMean}
 get_lfsr=function(x){x$result$lfsr}
