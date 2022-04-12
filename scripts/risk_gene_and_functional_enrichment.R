@@ -8,8 +8,6 @@ keep.genes = readRDS('keep_genes.rds')
 meta = readRDS('cayo_bulkbrain_combined_metadata.rds')
 meta = meta[order(match(meta$LID, colnames(e.keep))),]
 
-emma.results = readRDS('emma_results.rds')
-emma.ct.results = readRDS('emma_results.rds')
 mash.results = readRDS('mashr_results.rds')
 mash.ct.results = readRDS('mashr_results_cell_type.rds')
 
@@ -17,23 +15,7 @@ mash.ct.results = readRDS('mashr_results_cell_type.rds')
 # extract coefficients and p vals
 #################################
 
-emma.beta = emma.results[,paste('beta',predictor,sep='.'),]
-emma.pval = emma.results[,paste('pval',predictor,sep='.'),]
-emma.qval = apply(emma.pval,2,function(x) p.adjust(x,'fdr'))
-emma.beta = emma.beta[,region.levels]
-emma.pval = emma.pval[,region.levels]
-emma.qval = emma.qval[,region.levels]
-
-emma.beta.ct = emma.ct.results[,paste('beta',predictor,sep='.'),]
-emma.pval.ct = emma.ct.results[,paste('pval',predictor,sep='.'),]
-emma.qval.ct = apply(emma.pval.ct,2,function(x) p.adjust(x,'fdr'))
-emma.beta.ct = emma.beta.ct[,region.levels]
-emma.pval.ct = emma.pval.ct[,region.levels]
-emma.qval.ct = emma.qval.ct[,region.levels]
-
-get_pm=function(x){x$result$PosteriorMean}
-get_lfsr=function(x){x$result$lfsr}
-get_psd=function(x){x$result$PosteriorSD}
+library(mashr)
 
 mash.beta = get_pm(mash.results)
 mash.lfsr = get_lfsr(mash.results)
@@ -187,7 +169,7 @@ for(i in 1:length(clusters)){
 }
 
 #####################
-## disease enrichment
+## risk gene enrichment
 #####################
 
 # Import disease associations from DISEASES dataset (i.e., "Disease Ontology")
@@ -324,74 +306,4 @@ View(all.region.do.results)
 subset(all.region.do.results, inc.kst.qval < 0.05)[,c('do_name','inc.kst.score','inc.kst.qval')]
 subset(all.region.do.results, dec.kst.qval < 0.05)[,c('do_name','inc.kst.score','inc.kst.qval')]
 
-# plot shared male-biased genes across conditions
-
-library(nVennR)
-
-all.region = numeric(length=length(mashr.genes))
-names(all.region) = mashr.genes
-fsr.cutoff.now = 0.2
-
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(mash.lfsr[x,] < fsr.cutoff.now) >= 1/15 * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff.now] > 0) >= 1/15 * length(keep.genes)
-}))))] = 1
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(mash.lfsr[x,] < fsr.cutoff.now) >= 1/15 * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff.now] < 0) >= 1/15 * length(keep.genes)
-}))))] = -1
-mb = names(all.region[which(all.region == 1)])
-
-myV = plotVenn(list(ID=c(all.region.do.split[['DOID:1059']]$ensembl_gene_id)[c(all.region.do.split[['DOID:1059']]$ensembl_gene_id) %in% mb],
-                    ASD=c(all.region.do.split[['DOID:12849']]$ensembl_gene_id)[c(all.region.do.split[['DOID:12849']]$ensembl_gene_id) %in% mb], 
-                    SCZ=c(all.region.do.split[['DOID:5419']]$ensembl_gene_id)[c(all.region.do.split[['DOID:5419']]$ensembl_gene_id) %in% mb], 
-                    ADHD=c(all.region.do.split[['DOID:1094']]$ensembl_gene_id)[c(all.region.do.split[['DOID:1094']]$ensembl_gene_id) %in% mb]),
-               labelRegions = FALSE, fontScale = 3, nCycles = 10000, borderWidth=4,
-               setColors = c('#1b9e77', '#d95f02', '#7570b3', '#e7298a'))
-
-#########################################
-## export gene lists for motif enrichment
-#########################################
-
-## select data set
-
-betanow = mash.beta
-lsfrnow = mash.lfsr
-
-betanow = mash.beta.ct
-lsfrnow = mash.lfsr.ct
-
-## make gene subsets
-
-mashr.genes = rownames(betanow)
-names(mashr.genes) = rownames(betanow)
-
-library(biomaRt)
-mmul = useMart(biomart = 'ENSEMBL_MART_ENSEMBL',dataset='mmulatta_gene_ensembl') 
-gene2chrom = getBM(attributes=c('ensembl_gene_id','external_gene_name','chromosome_name'), filters = 'ensembl_gene_id', values = rownames(e.keep), mart = mmul)
-Ychrom = subset(gene2chrom, chromosome_name == "Y")
-
-`%!in%` = Negate(`%in%`)
-mash.beta = betanow = betanow[which(rownames(betanow) %!in% Ychrom$ensembl_gene_id),]
-mash.lfsr = lsfrnow = lsfrnow[which(rownames(lsfrnow) %!in% Ychrom$ensembl_gene_id),]
-ensembl.gene.names = unique(unlist(keep.genes))
-ensembl.gene.names = ensembl.gene.names[which(ensembl.gene.names %!in% Ychrom$ensembl_gene_id)]
-mashr.genes = mashr.genes[which(mashr.genes %!in% Ychrom$ensembl_gene_id)]
-
-all.region = numeric(length=length(ensembl.gene.names))
-names(all.region) = ensembl.gene.names
-write.table(ensembl.gene.names, file = 'all_exp_genes_no_Y.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
-
-# Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least a fraction [fraction.shared.cutoff] of regions
-
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] > 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = 1
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = -1
-table(all.region) 
-
-sb = names(all.region[which(all.region != 0)])
-write.table(sb, file = 'sb_genes_13regions.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
-write.table(sb, file = 'sb_genes_13regions_ct.txt',col.names = FALSE,row.names=FALSE,sep="\t", quote = FALSE)
-
-
+write.csv(all.region.do.results, file = "manual_do_results_macaque.csv")
