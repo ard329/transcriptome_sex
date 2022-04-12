@@ -14,9 +14,6 @@ meta = meta[order(match(meta$LID, colnames(e.keep))),]
 # primary analyses
 mash.results = readRDS('mashr_results.rds')
 
-# cell type corrected analyses
-mash.ct.results = readRDS('mashr_results_cell_type.rds')
-
 # human gtex data
 mash.hsap = readRDS('gtex_mashr_results_sex.rds')
 
@@ -27,12 +24,6 @@ mash.hsap = readRDS('gtex_mashr_results_sex.rds')
 # primary analyses
 mash.beta = get_pm(mash.results)
 mash.lfsr = get_lfsr(mash.results)
-mash.beta = mash.beta[,region.levels]
-mash.lfsr = mash.lfsr[,region.levels]
-
-# cell type corrected analyses
-mash.beta = get_pm(mash.ct.results)
-mash.lfsr = get_lfsr(mash.ct.results)
 mash.beta = mash.beta[,region.levels]
 mash.lfsr = mash.lfsr[,region.levels]
 
@@ -49,14 +40,12 @@ mashr.genes = rownames(mash.beta)
 names(mashr.genes) = rownames(mash.beta)
 all.region = numeric(length=length(mashr.genes))
 names(all.region) = mashr.genes
-betanow = mash.beta
-lsfrnow = mash.lfsr
 
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= 1/15 * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] > 0) >= 1/15 * length(keep.genes)
+  (sum(mash.lfsr[x,] < fsr.cutoff) >= 1/15 * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff] > 0) >= 1/15 * length(keep.genes)
 }))))] = 1
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= 1/15 * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= 1/15 * length(keep.genes)
+  (sum(mash.lfsr[x,] < fsr.cutoff) >= 1/15 * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff] < 0) >= 1/15 * length(keep.genes)
 }))))] = -1
 table(all.region)
 
