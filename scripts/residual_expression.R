@@ -12,8 +12,6 @@ keep.genes = readRDS('keep_genes.rds')
 meta = readRDS('cayo_bulkbrain_combined_metadata.rds')
 meta = meta[order(match(meta$LID, colnames(e.keep))),]
 
-out = readRDS('residual_expression_input.rds')
-
 ################
 ## get residuals
 ################
