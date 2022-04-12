@@ -14,10 +14,6 @@ keep.genes = readRDS('keep_genes.rds')
 emma.results = readRDS('emma_results_cell_type.rds')
 keep.genes = readRDS('keep_genes.rds')
 
-# transcript level
-emma.results = readRDS('emma_results_transcript.rds')
-keep.genes = readRDS('keep_transcripts_complete.rds')
-
 #############
 ## run models
 #############
@@ -67,7 +63,6 @@ m = mash(mash.data, g=get_fitted_g(m.r), fixg=TRUE)
 
 #saveRDS(m,file='mashr_results.rds')
 #saveRDS(m,file='mashr_results_cell_type.rds')
-#saveRDS(m,file='mashr_results_transcript.rds')
 
 print("done")
 
