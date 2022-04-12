@@ -175,3 +175,43 @@ ggplot(data=this.data,aes(x=beta.mmul,y=beta.hsap)) +
   ylab(expression(~italic(beta['human']))) +
   geom_smooth(method='lm',fullrange=TRUE,colour="black") +
   facet_wrap(~r1,nrow=2)
+
+#######################
+## cell type enrichment comparison
+#######################
+
+hum = readRDS('human_sex_cell_types.rds')
+mac = readRDS('macaque_sex_cell_types.rds')
+
+plotdata = rbind(cbind(mac, species = "Macaque"), cbind(hum, species = "Human"))
+plotdata$group = paste(plotdata$species, plotdata$bias, sep = " ")
+
+ggplot(data=plotdata, aes(x=group, y=Proportion, fill=`Cell Type`)) + 
+  geom_bar(stat="identity",position="stack") + theme_classic() + 
+  ylab("Proportion") + scale_fill_brewer(palette='PuOr') +
+  theme(axis.text = element_text(size=18), 
+        axis.text.x = element_text(angle = 45, hjust=1),
+        axis.title = element_text(size=18), 
+        axis.title.x = element_blank(), 
+        legend.text = element_text(size=14), 
+        legend.title = element_text(size=14))
+
+ggplot(data=plotdata, aes(x=bias, y=Proportion, fill=`Cell Type`)) + 
+  geom_bar(stat="identity",position="stack") + theme_classic() + 
+  ylab("Proportion") + scale_fill_brewer(palette='PuOr') +
+  facet_wrap(~species, strip.position = "bottom", scales = "free_x") +
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") +
+  theme(axis.text = element_text(size=18), 
+        axis.title = element_text(size=18), 
+        axis.title.x = element_blank(), 
+        strip.text.x = element_text(size=18),
+        legend.text = element_text(size=14), 
+        legend.title = element_text(size=14))
+
+
+
+
+
+
