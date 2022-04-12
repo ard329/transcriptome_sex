@@ -210,6 +210,43 @@ ggplot(data=plotdata, aes(x=bias, y=Proportion, fill=`Cell Type`)) +
         legend.text = element_text(size=14), 
         legend.title = element_text(size=14))
 
+#######################
+## risk gene enrichment comparison
+#######################
+
+all.region.do.results.macaque = read.csv("manual_do_results_macaque.csv")
+all.region.do.results.gtex = read.csv("manual_do_results_gtex.csv")
+
+plot.do = rbind(cbind(all.region.do.results.macaque, species = "Macaque"), cbind(all.region.do.results.gtex, species = "Human"))
+plot.do$logp = -log10(plot.do$inc.kst.pval)
+plot.do = plot.do[order(plot.do$logp, decreasing = TRUE),]
+head(plot.do)
+
+plot_diseases = c('DOID:1059','DOID:12849','DOID:5419','DOID:3312','DOID:1094')
+plot.do = subset(plot.do, do_id %in% plot_diseases)
+plot.do$do_name = as.factor(plot.do$do_name)
+levels(plot.do$do_name) = c("ADHD","ASD","BPD","ID","SCZ")
+plot.do$do_name <- factor(plot.do$do_name, levels=c('BPD','ID','ADHD','ASD','SCZ'))
+plot.do
+
+cols = brewer.pal(10, 'BrBG')
+
+ggplot(plot.do, aes(x=do_name, y = logp, fill = species)) +
+  ylab("Adjusted P-value (-log10)") +
+  scale_fill_manual(values=c(cols[3],cols[8])) +
+  geom_bar(position="dodge", stat="identity", alpha = 0.8) +
+  theme_classic() +
+  coord_flip() +
+  theme(axis.text = element_text(size=18),
+        legend.position = "bottom", 
+        legend.title = element_blank(),
+        axis.title.x = element_text(size=18),
+        legend.text = element_text(size=18),
+        axis.title.y = element_blank()) 
+
+
+
+
 
 
 
