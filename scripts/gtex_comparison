@@ -1,11 +1,9 @@
 #!/usr/bin/env Rscript
 
-#!/usr/bin/env Rscript
-
 library(biomaRt)
 library(parallel)
 
-mash.hsap = readRDS('gtex_mashr_results.rds')
+mash.hsap = readRDS('data/gtex_mashr_results_sex.rds')
 
 mmul = useEnsembl(biomart = 'ENSEMBL_MART_ENSEMBL',
                     dataset='mmulatta_gene_ensembl')
@@ -83,51 +81,6 @@ library(ggplot2)
 library(RColorBrewer)
 
 ##############################
-# Plot without sex chromosomes (lfsr <0.5 for both)
-##############################
-
-this.data= subset(
-  all.comparisons,
-  (lfsr.mmul < 0.5 & lfsr.hsap < 0.5) &
-    s1 %in% 'autosome' & s2 %in% 'autosome')
-
-l = c(-1,1)*with(this.data,max(abs(c(range(sbet.mmul),range(sbet.hsap)))))
-b = seq(round(l/5)*5)
-ggplot(
-  this.data,
-  aes(sbet.mmul,sbet.hsap)
-) +
-  geom_point() +
-  geom_smooth(method=lm) +
-  geom_hline(yintercept=0,size=0.1,linetype=2) +
-  geom_vline(xintercept=0,size=0.1,linetype=2) +
-  facet_wrap(~r1,nrow=2) +
-  coord_equal() +
-  scale_color_brewer(palette='Dark2') +
-  scale_x_continuous(limits=l) +
-  scale_y_continuous(limits=l) +
-  theme_article() +
-  theme(axis.text = element_text(size=18),axis.title = element_text(size=18), strip.text = element_text(size=18)) +
-  theme(strip.background=element_blank()) +
-  xlab(expression('Standardized'~italic(beta['rhesus']))) +
-  ylab(expression('Standardized'~italic(beta['human'])))
-
-this.data$r1 = as.factor(this.data$r1)
-stats = NULL
-for (i in 1:length(levels(this.data$r1))){
-  datanow = subset(this.data, r1 == levels(this.data$r1)[i])
-  cor = cor.test(datanow$sbet.mmul, datanow$sbet.hsap, method = 'spearman')
-  print(levels(this.data$r1)[i])
-  stats$r1[i] = levels(this.data$r1)[i]
-  print(cor$estimate)
-  stats$rho[i] = cor$estimate
-  print(paste('p = ',cor$p.value))
-  stats$pval[i] = cor$p.value
-}
-stats = data.frame(stats)
-stats
-
-##############################
 # Plot without sex chromosomes (lfsr <0.05 in either)
 ##############################
 
@@ -135,48 +88,6 @@ this.data= subset(
   all.comparisons,
   (lfsr.mmul < 0.05 | lfsr.hsap < 0.05) &
     s1 %in% 'autosome' & s2 %in% 'autosome')
-
-#sbet
-
-this.data$match = as.factor(ifelse(sign(this.data$beta.hsap) == sign(this.data$beta.mmul), 'yes', 'no'))
-l = c(-1,1)*with(this.data,max(abs(c(range(sbet.mmul),range(sbet.hsap)))))
-b = seq(round(l/5)*5)
-
-this.data$r1 = as.factor(this.data$r1)
-stats = NULL
-for (i in 1:length(levels(this.data$r1))){
-  datanow = subset(this.data, r1 == levels(this.data$r1)[i])
-  cor = cor.test(datanow$sbet.mmul, datanow$sbet.hsap, method = 'spearman')
-  print(levels(this.data$r1)[i])
-  stats$r1[i] = levels(this.data$r1)[i]
-  qcr = (sum(datanow$sbet.mmul > 0 & datanow$sbet.hsap > 0) + sum(datanow$sbet.mmul < 0 & datanow$sbet.hsap < 0) - sum(datanow$sbet.mmul > 0 & datanow$sbet.hsap < 0) - sum(datanow$sbet.mmul < 0 & datanow$sbet.hsap > 0)) / length(datanow$gene)
-  print(paste('qcr = ',qcr))
-  stats$qcr[i] = qcr
-  print(cor$estimate)
-  stats$rho[i] = cor$estimate
-  print(paste('p = ',cor$p.value))
-  stats$pval[i] = cor$p.value
-}
-stats = data.frame(stats)
-stats
-
-ggplot(data=this.data,aes(x=sbet.mmul,y=sbet.hsap,colour=factor(match))) +
-  geom_point(alpha=0.8) +
-  geom_hline(yintercept=0,size=0.1,linetype=2) +
-  geom_vline(xintercept=0,size=0.1,linetype=2) +
-  coord_equal() +
-  scale_color_manual(values=c('#ed1c24','#1b9e77')) +
-  scale_x_continuous(limits=l) +
-  scale_y_continuous(limits=l) +
-  theme_article() +
-  theme(axis.text = element_text(size=18),axis.title = element_text(size=18), strip.text = element_text(size=18)) +
-  theme(legend.position = 'none') +
-  theme(strip.background=element_blank()) +
-  xlab(expression('Standardized'~italic(beta['rhesus']))) +
-  ylab(expression('Standardized'~italic(beta['human']))) +
-  facet_wrap(~r1,nrow=2)
-
-#beta
 
 this.data$match = as.factor(ifelse(sign(this.data$beta.hsap) == sign(this.data$beta.mmul), 'yes', 'no'))
 l = c(-1,1)*with(this.data,max(abs(c(range(beta.mmul),range(beta.hsap)))))
@@ -226,48 +137,6 @@ this.data= subset(
   (lfsr.mmul < 0.05 | lfsr.hsap < 0.05) &
     s3 %in% 'nonY' & s4 %in% 'nonY')
 
-#sbet
-
-this.data$match = as.factor(ifelse(sign(this.data$beta.hsap) == sign(this.data$beta.mmul), 'yes', 'no'))
-l = c(-1,1)*with(this.data,max(abs(c(range(sbet.mmul),range(sbet.hsap)))))
-b = seq(round(l/5)*5)
-
-this.data$r1 = as.factor(this.data$r1)
-stats = NULL
-for (i in 1:length(levels(this.data$r1))){
-  datanow = subset(this.data, r1 == levels(this.data$r1)[i])
-  cor = cor.test(datanow$sbet.mmul, datanow$sbet.hsap, method = 'spearman')
-  print(levels(this.data$r1)[i])
-  stats$r1[i] = levels(this.data$r1)[i]
-  qcr = (sum(datanow$sbet.mmul > 0 & datanow$sbet.hsap > 0) + sum(datanow$sbet.mmul < 0 & datanow$sbet.hsap < 0) - sum(datanow$sbet.mmul > 0 & datanow$sbet.hsap < 0) - sum(datanow$sbet.mmul < 0 & datanow$sbet.hsap > 0)) / length(datanow$gene)
-  print(paste('qcr = ',qcr))
-  stats$qcr[i] = qcr
-  print(cor$estimate)
-  stats$rho[i] = cor$estimate
-  print(paste('p = ',cor$p.value))
-  stats$pval[i] = cor$p.value
-}
-stats = data.frame(stats)
-stats
-
-ggplot(data=this.data,aes(x=sbet.mmul,y=sbet.hsap,colour=factor(match))) +
-  geom_point(alpha=0.8) +
-  geom_hline(yintercept=0,size=0.1,linetype=2) +
-  geom_vline(xintercept=0,size=0.1,linetype=2) +
-  coord_equal() +
-  scale_color_manual(values=c('#ed1c24','#1b9e77')) +
-  scale_x_continuous(limits=l) +
-  scale_y_continuous(limits=l) +
-  theme_article() +
-  theme(axis.text = element_text(size=18),axis.title = element_text(size=18), strip.text = element_text(size=18)) +
-  theme(legend.position = 'none') +
-  theme(strip.background=element_blank()) +
-  xlab(expression('Standardized'~italic(beta['rhesus']))) +
-  ylab(expression('Standardized'~italic(beta['human']))) +
-  facet_wrap(~r1,nrow=2)
-
-#beta
-
 this.data$match = as.factor(ifelse(sign(this.data$beta.hsap) == sign(this.data$beta.mmul), 'yes', 'no'))
 l = c(-1,1)*with(this.data,max(abs(c(range(beta.mmul),range(beta.hsap)))))
 b = seq(round(l/5)*5)
@@ -306,32 +175,3 @@ ggplot(data=this.data,aes(x=beta.mmul,y=beta.hsap)) +
   ylab(expression(~italic(beta['human']))) +
   geom_smooth(method='lm',fullrange=TRUE,colour="black") +
   facet_wrap(~r1,nrow=2)
-
-###########################
-# Plot with sex chromosomes
-###########################
-
-this.data= subset(
-  all.comparisons,
-  (lfsr.mmul < 0.1 | lfsr.hsap < 0.1) &
-    TRUE # s1 %in% 'autosome' & s2 %in% 'autosome'
-)
-l = c(-1,1)*with(this.data,max(abs(c(range(sbet.mmul),range(sbet.hsap)))))
-b = seq(round(l[2]/5)*5)
-ggplot(
-  this.data,
-  aes(sbet.mmul,sbet.hsap,color=s1)
-) +
-  geom_point(size=1,alpha=1) +
-  geom_smooth(method=lm) +
-  geom_hline(yintercept=0,size=0.1,linetype=2) +
-  geom_vline(xintercept=0,size=0.1,linetype=2) +
-  facet_wrap(~r1) +
-  coord_equal() +
-  scale_color_brewer(name='Chromosome',palette='Dark2') +
-  scale_x_continuous(trans=scales::pseudo_log_trans(sigma = 1, base = 10),breaks=seq(-300,300,100)) +
-  scale_y_continuous(trans=scales::pseudo_log_trans(sigma = 1, base = 10),breaks=seq(-300,300,100)) +
-  theme_article(base_size=16) +
-  theme(strip.background=element_blank()) +
-  xlab(expression('Standardized'~italic(beta['rhesus']))) +
-  ylab(expression('Standardized'~italic(beta['human'])))
