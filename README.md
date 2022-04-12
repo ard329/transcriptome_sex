@@ -21,6 +21,8 @@ The following files are expected:
 * A library metadata file should be placed in ```data/cayo_brain_bulk_metadata_technical.tsv```
 
 * An animal social metrics file should be placed in ```data/social_metrics.csv```
+
+* Results for an analysis of sex-biased gene expression in humans (GTEx v8) should be placed in ```data/gtex_mashr_results_sex.rds```
   
 # Pipeline
   
@@ -138,7 +140,7 @@ scripts/filter_expression.R
 scripts/visualize_expression.R
 ```
 
-### Fit linear mixed model(s)
+### Fit linear mixed models
 
 * **Key libraries:** EMMREML
 
@@ -158,21 +160,16 @@ scripts/residual_expression
 scripts/mashr_model.R
 ```
 
-### Human v rhesus macaque comparison
-
-```
-# Compare sex effects to those GTEX
-scripts/gtex_comparison.R
-```
-
 ### Cell type enrichment
 
+* **Key libraries:** BRETIGEA, biomaRt
+
 ```
-# Fit linear mixed effect model
+# Calculate cell type enrichment for sex-biased genes in macaques (and human GTEx data)
 scripts/cell_type_enrichment.R
 ```
 
-### Adjust expression data for cell type proportions 
+### Adjust macaque expression data for cell type proportions 
 
 * **Key libraries:** BRETIGEA
 
@@ -209,10 +206,22 @@ scripts/visualize_model_results.R
 
 ### Disease, motif, and functional enrichment analyses
 
+* **Required software**: Homer (v4.10)
+* * **Key libraries:** ViSEAGO
+
 ```
-# Perform disease, motif, and functional enrichment analyses for sex-biased genes
-scripts/disease_functional_enrichment.R
+# Perform disease, motif, and functional enrichment analyses for sex-biased genes in macaques and humans
+scripts/risk_gene_and_functional_enrichment.R
+scripts/ASD_expression_enrichmnet.R
 scripts/motif_enrichment.sh
+```
+
+### Human vs. rhesus macaque comparisons
+
+```
+# Compare sex effects in humans and macaques
+# Compare cell type enrichment and disease enrichment results in humans and macaques
+scripts/gtex_comparison.R
 ```
 
 ### Sex prediction
@@ -220,14 +229,14 @@ scripts/motif_enrichment.sh
 * **Key libraries:** caret
 
 ```
-# Fit gradient boosted models per region
+# Fit gradient boosted models per region in macaques
 scripts/sex_prediction.R
 ```
 
 ### Identify potential drivers of sex-biased gene expression
 
 ```
-# Correlate sex differences in expression with tissue specificity, loss of function, and genetic variance for expression
+# Correlate sex-biased expression in macaques with tissue specificity, loss of function, and genetic variance for expression
 scripts/evolutionary_mechanisms.R
 ```
 
