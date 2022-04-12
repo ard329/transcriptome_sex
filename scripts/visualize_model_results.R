@@ -11,10 +11,8 @@ meta = meta[order(match(meta$LID, colnames(e.keep))),]
 
 emma.results = readRDS('emma_results.rds')
 emma.ct.results = readRDS('emma_results_cell_type.rds')
-emma.t.results = readRDS('emma_results_transcript.rds')
 mash.results = readRDS('mashr_results.rds')
 mash.ct.results = readRDS('mashr_results_cell_type.rds')
-mash.t.results = readRDS('mashr_results_transcript.rds')
 
 library(biomaRt)
 mmul = useMart(biomart = 'ENSEMBL_MART_ENSEMBL',dataset='mmulatta_gene_ensembl') 
@@ -39,14 +37,6 @@ emma.qval.ct = apply(emma.pval.ct,2,function(x) p.adjust(x,'fdr'))
 emma.beta.ct = emma.beta.ct[,region.levels]
 emma.pval.ct = emma.pval.ct[,region.levels]
 emma.qval.ct = emma.qval.ct[,region.levels]
-
-emma.beta.t = emma.t.results[,paste('beta',predictor,sep='.'),]
-emma.pval.t = emma.t.results[,paste('pval',predictor,sep='.'),]
-emma.qval.t = apply(emma.pval.t,2,function(x) p.adjust(x,'fdr'))
-emma.beta.t = emma.beta.t[,region.levels]
-emma.pval.t = emma.pval.t[,region.levels]
-emma.qval.t = emma.qval.t[,region.levels]
-
 get_pm=function(x){x$result$PosteriorMean}
 get_lfsr=function(x){x$result$lfsr}
 
@@ -60,11 +50,6 @@ mash.lfsr.ct = get_lfsr(mash.ct.results)
 mash.beta.ct = mash.beta.ct[,region.levels]
 mash.lfsr.ct = mash.lfsr.ct[,region.levels]
 
-mash.beta.t = get_pm(mash.t.results)
-mash.lfsr.t = get_lfsr(mash.t.results)
-mash.beta.t = mash.beta.t[,region.levels]
-mash.lfsr.t = mash.lfsr.t[,region.levels]
-
 ########################
 ## inspect and visualize
 ########################
@@ -72,35 +57,22 @@ mash.lfsr.t = mash.lfsr.t[,region.levels]
 # Significant genes per region
 apply(emma.qval,2,function(x) sum(x < fdr.cutoff,na.rm=TRUE))
 apply(emma.qval.ct,2,function(x) sum(x < fdr.cutoff,na.rm=TRUE))
-apply(emma.qval.t,2,function(x) sum(x < fdr.cutoff,na.rm=TRUE))
 apply(mash.lfsr,2,function(x) sum(x < fsr.cutoff))
 apply(mash.lfsr.ct,2,function(x) sum(x < fsr.cutoff))
-apply(mash.lfsr.t,2,function(x) sum(x < fsr.cutoff))
-
-# How many genes are significant in n regions
-sig = data.frame(table(apply(mash.lfsr,1,function(x) sum(x < fsr.cutoff))))
-sig
-12672 - sig[1,2]
-sum(subset(sig, as.numeric(Var1) >=8)$Freq)
-sig = data.frame(table(apply(mash.lfsr.ct,1,function(x) sum(x < fsr.cutoff))))
-sig
-12672 - sig[1,2]
-sum(subset(sig, as.numeric(Var1) >=8)$Freq)
-table(apply(mash.lfsr.t,1,function(x) sum(x < fsr.cutoff)))
 
 # Genes that are significant in just one region
 apply(mash.lfsr[apply(mash.lfsr,1,function(x) sum(x < fsr.cutoff)) == 1,],2,function(x) sum(x < fsr.cutoff))
 apply(mash.lfsr.ct[apply(mash.lfsr.ct,1,function(x) sum(x < fsr.cutoff)) == 1,],2,function(x) sum(x < fsr.cutoff))
 apply(mash.lfsr.t[apply(mash.lfsr.t,1,function(x) sum(x < fsr.cutoff)) == 1,],2,function(x) sum(x < fsr.cutoff))
 
+##########################
+## plot counts of sex-biased genes
+##########################
+
 library(tidyverse)
 library(ggplot2)
 library(RColorBrewer)
 library(reshape2)
-
-##########################
-## plot # sex-biased genes
-##########################
 
 # select data to plot
 
@@ -253,7 +225,6 @@ library(plyr)
 
 b.mash = data.frame(expand.grid(rownames(mash.beta),colnames(mash.beta)), qval=as.numeric(mash.lfsr), beta=as.numeric(mash.beta))
 b.mash = data.frame(expand.grid(rownames(mash.beta.ct),colnames(mash.beta.ct)), qval=as.numeric(mash.lfsr.ct), beta=as.numeric(mash.beta.ct))
-b.mash = data.frame(expand.grid(rownames(mash.beta.t),colnames(mash.beta.t)), qval=as.numeric(mash.lfsr.t), beta=as.numeric(mash.beta.t))
 
 # prep plot
 
@@ -388,20 +359,6 @@ library(grid)
 library(tidyr)
 library(RColorBrewer)
 
-# run new piedonut function code (piedonut_new.R)
-
-PieDonut(data = pie,
-         mapping = aes(n_regions,Bias,count=value),
-         selected=1,
-         labelposition=0,
-         showRatioPie = FALSE,
-         showRatioDonut = FALSE,
-         pieLabelSize=4,
-         donutLabelSize = 4,
-         showPieName = FALSE, 
-         r0=0,
-         showRatioThreshold = 0.1)
-
 # stacked bar plot
 
 pie$Bias = revalue(pie$Bias, c("F"="Female", "M"="Male"))
@@ -421,15 +378,20 @@ library(RColorBrewer)
 
 colnew <- colorRampPalette(region.colors[c(5,6)])
 
-cornow = cor(emma.beta[rownames(emma.beta) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
-cornow = cor(emma.beta.ct[rownames(emma.beta.ct) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
-cornow = cor(emma.beta.t[rownames(emma.beta.t) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
-cornow = cor(mash.beta[rownames(mash.beta) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
-cornow = cor(mash.beta.ct[rownames(mash.beta.ct) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
-cornow = cor(mash.beta.t[rownames(mash.beta.t) %!in% Ychrom,], use = "complete.obs", method = 'spearman')
+# select data to plot
 
-corrplot(cornow, col=colnew(200), type='lower', method='ellipse', 
-         tl.col = "black", tl.cex = 1.3, cl.cex = 1.3)
+cornow = cor(emma.beta, use = "complete.obs", method = 'spearman')
+cornow = cor(emma.beta.ct, use = "complete.obs", method = 'spearman')
+cornow = cor(mash.beta, use = "complete.obs", method = 'spearman')
+cornow = cor(mash.beta.ct, use = "complete.obs", method = 'spearman')
+
+corrplot(cornow, col=COL2('BrBG', 10), 
+         #type='lower', 
+         #method='ellipse', 
+         method = 'square',
+         tl.col = "black", 
+         tl.cex = 1.3, 
+         cl.cex = 1.3)
 
 #################################################
 ## chromosome distribution, enrichment, and plots
@@ -571,7 +533,9 @@ chrom_en$padj = p.adjust(chrom_en$p, method = 'bonferroni')
 chrom_en$padj = round(chrom_en$padj, digits = 3)
 chrom_en
 
+##################################
 ## compare betas for sex chromosome vs autosomal genes
+##################################
 
 sex_ef = subset(b.mash1, qval < fsr.cutoff & chrom != "Y")
 sex_ef = subset(b.mash2, qval < fsr.cutoff & chrom != "Y")
@@ -623,8 +587,3 @@ mod = aov(abs(beta) ~ key, data = sex_ef2)
 summary(mod)
 tuk = TukeyHSD(mod)
 tuk$key[,'p adj']
-
-# which X genes are male biased?
-mb_X = data.frame(ensembl_gene_id = unique(subset(sex_ef, chrom2 == "X" & beta > 0)$Var1))
-mb_X = merge(mb_X, gene2chrom, by = 'ensembl_gene_id')
-mb_X
