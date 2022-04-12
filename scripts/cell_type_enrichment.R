@@ -179,7 +179,7 @@ levels(plotdata2$`Cell Type`) = c("Astrocytes","Endothelial Cells","Microglia","
 
 ggplot(data=plotdata2, aes(x=bias, y=Proportion, fill=`Cell Type`)) + 
   geom_bar(stat="identity",position="stack") + theme_classic() + 
-  xlab("Bias") + ylab("Proportion") + scale_fill_brewer(palette='PuOr') +
+  xlab("Bias") + ylab("Proportion") + scale_fill_brewer(palette='BrBG') +
   theme(axis.text = element_text(size=14), axis.title = element_text(size=14), legend.text = element_text(size=14), legend.title = element_text(size=14))
 
 saveRDS(plotdata2, file = 'macaque_sex_cell_types.rds')
@@ -266,7 +266,7 @@ celltypes
 # plot and save
 plotdata = data.frame(genes = c(fb, mb))
 plotdata$bias = ifelse(plotdata$genes %in% fb, "Female", "Male")
-for(i in 1:length(plotdata$genes)){plotdata$`Cell Type`[i] = vlookup(plotdata$genes[i], dict = markers, lookup_column = 3, result_column = 2)}
+for(i in 1:length(plotdata$genes)){plotdata$`Cell Type`[i] = vlookup(plotdata$genes[i], dict = markers_data, lookup_column = 3, result_column = 2)}
 plotdata2 <- aggregate(.~`Cell Type`+bias, plotdata, length)
 sum(subset(plotdata2, bias == 'Female')$genes)
 sum(subset(plotdata2, bias == 'Male')$genes)
@@ -276,7 +276,7 @@ levels(plotdata2$`Cell Type`) = c("Astrocytes","Endothelial Cells","Microglia","
 
 ggplot(data=plotdata2, aes(x=bias, y=Proportion, fill=`Cell Type`)) + 
   geom_bar(stat="identity",position="stack") + theme_classic() + 
-  xlab("Bias") + ylab("Proportion") + scale_fill_brewer(palette='PuOr') +
+  xlab("Bias") + ylab("Proportion") + scale_fill_brewer(palette='BrBG') +
   theme(axis.text = element_text(size=14), axis.title = element_text(size=14), legend.text = element_text(size=14), legend.title = element_text(size=14))
   theme(axis.text = element_text(size=14), axis.title = element_text(size=14), legend.text = element_text(size=14), legend.title = element_text(size=14))
 
