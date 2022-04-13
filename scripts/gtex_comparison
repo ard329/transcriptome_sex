@@ -215,7 +215,7 @@ ggplot(data=plotdata, aes(x=bias, y=Proportion, fill=`Cell Type`)) +
 #######################
 
 all.region.do.results.macaque = read.csv("manual_do_results_macaque.csv")
-all.region.do.results.gtex = read.csv("manual_do_results_gtex.csv")
+all.region.do.results.gtex = read.csv("manual_do_results_human.csv")
 
 plot.do = rbind(cbind(all.region.do.results.macaque, species = "Macaque"), cbind(all.region.do.results.gtex, species = "Human"))
 plot.do$logp = -log10(plot.do$inc.kst.pval)
