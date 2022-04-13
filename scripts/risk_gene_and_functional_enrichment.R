@@ -12,59 +12,75 @@ mash.results = readRDS('mashr_results.rds')
 mash.ct.results = readRDS('mashr_results_cell_type.rds')
 
 #################################
-# extract coefficients and p vals
+# extract coefficients and p vals 
+# select data set
 #################################
 
 library(mashr)
+library(stringr)
 
+# macaque primary analyses
 mash.beta = get_pm(mash.results)
 mash.lfsr = get_lfsr(mash.results)
 mash.sbet = mash.beta / get_psd(mash.results)
 mash.beta = mash.beta[,region.levels]
 mash.lfsr = mash.lfsr[,region.levels]
 mash.sbet = mash.sbet[,region.levels]
-
-mash.beta.ct = get_pm(mash.ct.results)
-mash.lfsr.ct = get_lfsr(mash.ct.results)
-mash.sbet.ct = mash.beta.ct / get_psd(mash.ct.results)
-mash.beta.ct = mash.beta.ct[,region.levels]
-mash.lfsr.ct = mash.lfsr.ct[,region.levels]
-mash.beta.ct = mash.beta.ct[,region.levels]
-
 ensembl.gene.names = unique(unlist(keep.genes))
 
-## select data set
+# macaque cell type corrected
+mash.beta = get_pm(mash.ct.results)
+mash.lfsr = get_lfsr(mash.ct.results)
+mash.sbet = mash.beta / get_psd(mash.ct.results)
+mash.beta = mash.beta[,region.levels]
+mash.lfsr = mash.lfsr[,region.levels]
+mash.sbet = mash.sbet[,region.levels]
+ensembl.gene.names = unique(unlist(keep.genes))
 
-betanow = mash.beta
-lsfrnow = mash.lfsr
-sbetnow = mash.sbet
+# human GTEx
+mash.hsap = readRDS('gtex_mashr_results_sex.rds')
+mash.beta = get_pm(mash.hsap)
+mash.lfsr = get_lfsr(mash.hsap)
+hsap.berr = get_psd(mash.hsap)
+mash.sbet = mash.beta / hsap.berr
+rownames(mash.lfsr) = str_sub(rownames(mash.lfsr),1,15)
+rownames(mash.beta) = str_sub(rownames(mash.beta),1,15)
+rownames(mash.sbet) = str_sub(rownames(mash.sbet),1,15)
+ensembl.gene.names = rownames(mash.beta)
 
-betanow = mash.beta.ct
-lsfrnow = mash.lfsr.ct
-sbetnow = mash.sbet.ct
-
-## make gene subsets
-
-mashr.genes = rownames(betanow)
-names(mashr.genes) = rownames(betanow)
+## remove Y chr (for macaque)
 
 library(biomaRt)
+`%!in%` = Negate(`%in%`)
+
+mashr.genes = rownames(mash.beta)
+names(mashr.genes) = rownames(mash.beta)
+
 mmul = useMart(biomart = 'ENSEMBL_MART_ENSEMBL',dataset='mmulatta_gene_ensembl') 
 gene2chrom = getBM(attributes=c('ensembl_gene_id','external_gene_name','chromosome_name'), filters = 'ensembl_gene_id', values = rownames(e.keep), mart = mmul)
 Ychrom = subset(gene2chrom, chromosome_name == "Y")
 
-`%!in%` = Negate(`%in%`)
-mash.beta = betanow = betanow[which(rownames(betanow) %!in% Ychrom$ensembl_gene_id),]
-mash.lfsr = lsfrnow = lsfrnow[which(rownames(lsfrnow) %!in% Ychrom$ensembl_gene_id),]
-mash.sbet = sbetnow = sbetnow[rownames(sbetnow)  %!in% Ychrom$ensembl_gene_id,]
+mash.beta = mash.beta[which(rownames(mash.beta) %!in% Ychrom$ensembl_gene_id),]
+mash.lfsr = mash.lfsr[which(rownames(mash.lfsr) %!in% Ychrom$ensembl_gene_id),]
+mash.sbet = mash.sbet[rownames(sbetnow)  %!in% Ychrom$ensembl_gene_id,]
 ensembl.gene.names = ensembl.gene.names[which(ensembl.gene.names %!in% Ychrom$ensembl_gene_id)]
 mashr.genes = mashr.genes[which(mashr.genes %!in% Ychrom$ensembl_gene_id)]
-
 all.region = numeric(length=length(ensembl.gene.names))
 names(all.region) = ensembl.gene.names
 
+## remove Y chr (for humans)
+
+hsap = useMart(biomart = 'ENSEMBL_MART_ENSEMBL',dataset='hsapiens_gene_ensembl') 
+gene2chrom = getBM(attributes=c('ensembl_gene_id','external_gene_name','chromosome_name'), filters = 'ensembl_gene_id', values = ensembl.gene.names, mart = hsap)
+Ychrom = subset(gene2chrom, chromosome_name == "Y")
+
+mash.lfsr = mash.lfsr[which(rownames(mash.lfsr) %!in% Ychrom$ensembl_gene_id),]
+mash.beta = mash.beta[which(rownames(mash.beta) %!in% Ychrom$ensembl_gene_id),]
+mashr.genes = rownames(mash.beta)
+names(mashr.genes) = rownames(mash.beta)
+
 ################
-## gene ontology
+## gene ontology (macaques)
 ################
 
 # Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least a fraction [fraction.shared.cutoff] of regions
@@ -169,7 +185,7 @@ for(i in 1:length(clusters)){
 }
 
 #####################
-## risk gene enrichment
+## risk gene enrichment (macaques or humans)
 #####################
 
 # Import disease associations from DISEASES dataset (i.e., "Disease Ontology")
@@ -306,4 +322,7 @@ View(all.region.do.results)
 subset(all.region.do.results, inc.kst.qval < 0.05)[,c('do_name','inc.kst.score','inc.kst.qval')]
 subset(all.region.do.results, dec.kst.qval < 0.05)[,c('do_name','inc.kst.score','inc.kst.qval')]
 
-write.csv(all.region.do.results, file = "manual_do_results_macaque.csv")
+#write.csv(all.region.do.results, file = "manual_do_results_macaque.csv")
+#write.csv(all.region.do.results, file = "manual_do_results_human.csv")
+
+
