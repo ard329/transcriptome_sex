@@ -133,7 +133,7 @@ scripts/filter_expression.R
 
 ### Visualize expression data (pre-modeling)
 
-* **Key libraries:** variancePartition, umap, dendextend, ape, phangorn
+* **Key libraries:** variancePartition, umap
 
 ```
 # Visualize expression data
@@ -171,7 +171,7 @@ scripts/cell_type_enrichment.R
 
 ### Adjust macaque expression data for cell type proportions 
 
-* **Key libraries:** BRETIGEA
+* **Key libraries:** BRETIGEA, biomaRt
 
 ```
 # Fit linear mixed effect model
@@ -198,6 +198,8 @@ scripts/mashr_model.R
 
 ### Visualize and describe model results
 
+* **Key libraries:** biomaRt, ggplot2
+
 ```
 # Visualize and describe sex-biased gene distributions
 # Includes chromosome enrichment analysis
@@ -207,16 +209,18 @@ scripts/visualize_model_results.R
 ### Disease, motif, and functional enrichment analyses
 
 * **Required software**: Homer (v4.10)
-* * **Key libraries:** ViSEAGO
+* * **Key libraries:** ViSEAGO, mashr, biomaRt
 
 ```
 # Perform disease, motif, and functional enrichment analyses for sex-biased genes in macaques and humans
 scripts/risk_gene_and_functional_enrichment.R
-scripts/ASD_expression_enrichmnet.R
+scripts/ASD_expression_enrichment.R
 scripts/motif_enrichment.sh
 ```
 
 ### Human vs. rhesus macaque comparisons
+
+* **Key libraries:** biomaRt
 
 ```
 # Compare sex effects in humans and macaques
