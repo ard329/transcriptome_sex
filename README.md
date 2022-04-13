@@ -209,7 +209,7 @@ scripts/visualize_model_results.R
 ### Disease, motif, and functional enrichment analyses
 
 * **Required software**: Homer (v4.10)
-* * **Key libraries:** ViSEAGO, mashr, biomaRt
+* **Key libraries:** ViSEAGO, mashr, biomaRt
 
 ```
 # Perform disease, motif, and functional enrichment analyses for sex-biased genes in macaques and humans
