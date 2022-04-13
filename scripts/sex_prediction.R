@@ -148,9 +148,6 @@ for (i in 1:length(region.levels)){
 
 names(gbmImp) = names(preds) = names(mats) = colnames(stats) = region.levels
 rownames(stats) = names(c(con.mat$overall,con.mat$byClass, ROCnow))
-stats
-
-write.csv(stats, file = paste("gbm_stats_",genelist,".csv",sep=""))
 
 ## model fit statistics
 
@@ -199,8 +196,6 @@ ggplot(preds.all, aes(x=region, y=abs_pred)) +
   geom_point(size = 2, color=preds.all$match) + theme(axis.text.x = element_text(angle = 90)) +
   theme(axis.title = element_text(size=18), axis.text = element_text(size=18), axis.title.x = element_blank())
 
-write.csv(preds.all, file = paste("gbm_predictions_",genelist,".csv",sep=""))
-
 # investigate variability
 
 metanow = unique(meta[,c('Individual','exact_age_years','rank.scaled','ordinal.rank','sex')])
@@ -210,6 +205,7 @@ m = preds.all
 #m = data.frame(m %>% group_by(Individual) %>% summarise(mean_pred = sd(abs_pred)))
 m = merge(m, metanow, by = 'Individual')
 
+# age effects
 mod = lm(mean_pred ~ exact_age_years, data = m)
 summary(mod)
 mod = lm(mean_pred ~ exact_age_years, data = subset(m, sex=='f'))
@@ -224,8 +220,7 @@ ggplot(m, aes(x=exact_age_years, y=mean_pred, color=sex)) + geom_point() +
   scale_color_manual(values=region.colors[c(3,6)], breaks = c('f','m'), labels = c('F','M')) +
   theme(axis.text = element_text(size=18), axis.title = element_text(size=18), legend.text = element_text(size=18), legend.title = element_blank())
 
-hist(m2$exact_age_years, breaks = 20)
-
+# rank effects
 mod = lm(mean_pred ~ rank.scaled, data = m2)
 summary(mod)
 mod = lm(mean_pred ~ rank.scaled, data = subset(m2, sex=='f'))
@@ -257,8 +252,6 @@ gbmImp.all2$Mean = rowMeans(gbmImp.all2[,3:17], na.rm = TRUE)
 for (i in 1:length(gbmImp.all2$gene)) {gbmImp.all2$chrom[i] = vlookup(gbmImp.all2$gene[i], 
   dict = gene2chrom, lookup_column = 1, result_column = 3)}
 
-write.csv(gbmImp.all2, file = paste("gbm_importance_",genelist,".csv",sep=""))
-
 nonzero = subset(gbmImp.all2, Sum>0)
 dim(nonzero)[1]
 chroms = c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","X","Y")
@@ -281,7 +274,7 @@ unique.combo = unique.infl[which(unique.infl %in% unique.exp)]
 length(unique.combo)
 length(unique.combo)/length(unique.infl)
 
-# compare X chromosome models to Oliva et al. (2020)
+# compare X chromosome model gene importance to humans (from Oliva et al. 2020)
 
 oliva = read.csv('Oliva_data.csv')
 orths = readRDS('human_macaque_one2one.rds')
@@ -303,30 +296,4 @@ ggplot(data = comp, aes(x = log10(Mean), y = log10(Avg.of.relative.sex.predictiv
   geom_smooth(method = 'lm') + theme_classic() +
   ylab('Relative Importance (log10) in Oliva et al.') + xlab('Relative Importance (log10) in Current Study') +
   theme(axis.title = element_text(size=18), axis.text = element_text(size=18))
-
-# investigate X chromosome model misclassified females
-
-misclass = subset(preds.all, obs == 'f' & match == 'red')
-View(misclass)
-misclass_now = misclass[5,]
-imp = data.frame(imp = gbmImp.all2[,which(colnames(gbmImp.all2) == misclass_now$region[1])])
-imp$gene = gbmImp.all2$gene
-imp = imp[order(-imp$imp),]
-genenow = imp[1,]$gene
-subset(comp, gene == genenow[1])$HUGO_gene_id
-lidnow = subset(meta, Region == misclass_now$region[1])$LID
-expdata = data.frame(t(resid_exp_all[genenow[1],which(colnames(resid_exp_all) %in% lidnow)]))
-colnames(expdata) = 'exp'
-expdata$LID = rownames(expdata)
-expdata = merge(expdata, meta_sex, by ='LID')
-expdata$color = ifelse(expdata$LID %in% misclass_now$LID, "red", "black")
-
-ggplot(expdata, aes(x=sex, y=exp, fill=sex)) + 
-  geom_boxplot() + 
-  theme_classic() +
-  geom_point(size = 3, color=expdata$color) +
-  scale_fill_manual(values=region.colors[c(3,6)]) +
-  scale_x_discrete(labels=c("f" = "F", "m" = "M")) +
-  ylab(paste(subset(comp, gene == genenow[1])$HUGO_gene_id," residual expression (log2) in ",misclass_now$region[1],sep="")) +
-  theme(axis.title.x = element_blank(), legend.position = 'none', axis.text = element_text(size=18), axis.title.y = element_text(size=18))
 
