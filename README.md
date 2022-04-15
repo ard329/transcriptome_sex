@@ -1,4 +1,4 @@
-# transcriptome_sex
+# cayo_brain_transcriptome_sex
 
 #### Repository for the sex-biased brain transcriptome project from Cayo Santiago macaques (bulk-tissue RNA-seq)
 
