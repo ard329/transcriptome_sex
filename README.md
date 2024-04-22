@@ -226,6 +226,7 @@ scripts/motif_enrichment.sh
 # Compare sex effects in humans and macaques
 # Compare cell type enrichment and disease enrichment results in humans and macaques
 scripts/gtex_comparison.R
+scripts/conservation_analysis.R
 ```
 
 ### Sex prediction
