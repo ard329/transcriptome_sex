@@ -83,16 +83,6 @@ names(mashr.genes) = rownames(mash.beta)
 ## gene ontology (macaques)
 ################
 
-# Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least a fraction [fraction.shared.cutoff] of regions
-
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] > 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = 1
-all.region[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(lsfrnow[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(betanow[x,][lsfrnow[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = -1
-table(all.region) 
-
 # Code male-biased genes as 1 and female-biased genes as -1 if they are significant and co-directional in at least 1 region
 
 all.region[names(which(unlist(lapply(mashr.genes,function(x) {
@@ -242,19 +232,15 @@ saveRDS(do.mmul.out,file='rnaseq_genes_do_d0.rds')
 all.region.fet = all.region.kst = numeric(length=length(ensembl.gene.names))
 names(all.region.fet) = names(all.region.kst) = ensembl.gene.names
 
-# Code upregulated genes as 1 and downregulated genes as -1 if they are significant and co-directional in at least a fraction [fraction.shared.cutoff] of regions
+# Code upregulated genes as 1 and downregulated genes as -1 if they are pos or neg
 
-all.region.fet[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(mash.lfsr[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff] > 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = 1
-all.region.fet[names(which(unlist(lapply(mashr.genes,function(x) {
-  (sum(mash.lfsr[x,] < fsr.cutoff) >= fraction.shared.cutoff * length(keep.genes)) && sum(mash.beta[x,][mash.lfsr[x,] < fsr.cutoff] < 0) >= fraction.shared.cutoff * length(keep.genes)
-}))))] = -1
+ma = rowMeans(mash.beta, na.rm = T)
+all.region.fet = sign(ma)
 table(all.region.fet)
 
 all.region.kst[rownames(mash.sbet)] = rowMeans(mash.sbet)
 all.region.join = data.frame(ensembl_gene_id = ensembl.gene.names, direction = as.integer(all.region.fet), effect = as.numeric(all.region.kst))
-all.region.do = merge(all.region.join, do.mmul, by='ensembl_gene_id')
+all.region.do = merge(all.region.join, do.mmul, by='ensembl_gene_id', all.x = T)
 
 all.region.do.pass = subset(all.region.do,do_id %in% names(which(table(subset(all.region.do,confidence >= 0)$do_id) >= 10)))
 all.region.do.gene.pass = unique(all.region.do.pass[c('ensembl_gene_id','direction')])
@@ -264,6 +250,24 @@ do.inc.total = as.integer(table(factor(all.region.do.pass$direction > 0,levels=c
 do.dec.total = as.integer(table(factor(all.region.do.pass$direction < 0,levels=c('TRUE','FALSE'))))
 
 all.region.do.split = split(all.region.do.pass,all.region.do.pass$do_id)
+
+# run GSEA
+
+examplePathways = split(all.region.do.pass$ensembl_gene_id,all.region.do.pass$do_id)
+exampleRanks = all.region.do.pass$effect
+names(exampleRanks) = all.region.do.pass$ensembl_gene_id
+exampleRanks = c(exampleRanks)
+exampleRanks = exampleRanks[!duplicated(names(exampleRanks))]
+exampleRanks = exampleRanks[order(exampleRanks, decreasing = T)]
+fgseaRes = fgsea(pathways = examplePathways, stats = exampleRanks)
+colnames(fgseaRes)[1] = 'do_id'
+fgseaRes = merge(fgseaRes,do.def,by='do_id')
+View(fgseaRes)
+
+#write.csv(all.region.do.results, file = "gsea_results_macaque.csv")
+#write.csv(all.region.do.results, file = "gsea_results_human.csv")
+
+# run Fishers & KS Tests
 
 library(parallel)
 
