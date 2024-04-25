@@ -238,7 +238,7 @@ scripts/conservation_analysis.R
 scripts/sex_prediction.R
 ```
 
-### Identify potential drivers of sex-biased gene expression
+### Evolution of sex-biased genes
 
 ```
 # Correlate sex-biased expression in macaques with tissue specificity, loss of function, and genetic variance for expression
